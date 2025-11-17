@@ -86,6 +86,7 @@ public function store(Request $request)
     // Método que SALVA as alterações
     public function update(Request $request, Appointment $appointment)
     {
+        
         // 1. Segurança básica
         if ($appointment->user_id !== auth()->id()) {
             abort(403);
@@ -123,6 +124,14 @@ public function store(Request $request)
         // Só validamos horário se o status for 'agendado' (para não travar edições antigas)
         if ($request->status === 'agendado') {
             // Chama aquela função privada que criamos antes
+            $dataNova = \Carbon\Carbon::parse($request->scheduled_at);
+            
+            // Se tentar colocar uma data passada mantendo "Agendado", bloqueia!
+            if ($dataNova->isPast()) {
+                return back()
+                    ->withErrors(['scheduled_at' => 'Para manter como Agendado, a data precisa ser no futuro.'])
+                    ->withInput();
+            }
             $erroHorario = $this->validarHorarioComercial($request->scheduled_at, auth()->id());
             
             if ($erroHorario) {
@@ -156,28 +165,39 @@ public function store(Request $request)
      * Retorna string com erro ou null se estiver tudo ok.
      */
     private function validarHorarioComercial($dataString, $userId)
-    {
-        $dataAgendamento = Carbon::parse($dataString);
-        $diaSemana = $dataAgendamento->dayOfWeek;
+        {
+            $dataAgendamento = Carbon::parse($dataString);
+            $diaSemana = $dataAgendamento->dayOfWeek;
 
-        $regra = BusinessHour::where('user_id', $userId)
-            ->where('day', $diaSemana)
-            ->first();
+            $regra = BusinessHour::where('user_id', $userId)
+                ->where('day', $diaSemana)
+                ->first();
 
-        // Regra 1: Dia Fechado
-        if (!$regra || !$regra->is_open) {
-            return 'Desculpe, estamos fechados neste dia da semana.';
+            // Regra 1: Dia Fechado
+            if (!$regra || !$regra->is_open) {
+                return 'Desculpe, estamos fechados neste dia da semana.';
+            }
+
+            // Regra 2: Horário
+            $horaAgendamento = $dataAgendamento->format('H:i:s');
+            $horaAbertura = $regra->open_at->format('H:i:s');
+            $horaFechamento = $regra->close_at->format('H:i:s');
+
+            // --- CORREÇÃO DO BUG 00:00 ---
+            // Se o horário de fechamento for meia-noite (00:00:00), 
+            // transformamos para o último segundo do dia (23:59:59)
+            if ($horaFechamento === '00:00:00') {
+                $horaFechamento = '23:59:59';
+            }
+            // -----------------------------
+
+            if ($horaAgendamento < $horaAbertura || $horaAgendamento > $horaFechamento) {
+                // Ajuste visual na mensagem: Se for 23:59:59, mostramos 00:00 ou 24:00 para ficar bonito
+                $horaVisual = $regra->close_at->format('H:i'); 
+                
+                return "Horário inválido. Neste dia atendemos das {$regra->open_at->format('H:i')} às {$horaVisual}.";
+            }
+
+            return null; // Tudo certo!
         }
-
-        // Regra 2: Horário
-        $horaAgendamento = $dataAgendamento->format('H:i:s');
-        $horaAbertura = $regra->open_at->format('H:i:s');
-        $horaFechamento = $regra->close_at->format('H:i:s');
-
-        if ($horaAgendamento < $horaAbertura || $horaAgendamento > $horaFechamento) {
-            return "Horário inválido. Neste dia atendemos das {$regra->open_at->format('H:i')} às {$regra->close_at->format('H:i')}.";
-        }
-
-        return null; // Tudo certo!
-    }
 }

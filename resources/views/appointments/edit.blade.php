@@ -35,7 +35,7 @@
                                     id="scheduled_at" 
                                     required
                                     value="{{ old('scheduled_at', $appointment->scheduled_at->format('Y-m-d\TH:i')) }}"
-                                    min="{{ now()->format('Y-m-d\TH:i') }}" 
+                                   
                                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
 
                                 <x-input-error :messages="$errors->get('scheduled_at')" class="mt-2" />

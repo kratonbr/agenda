@@ -1,20 +1,25 @@
 <?php
 
 use Illuminate\Support\Facades\Schedule;
-use App\Models\Appointment;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB; // <--- IMPORTE O DB
 
-// Rotina: A cada hora, verifica agendamentos passados
 Schedule::call(function () {
-    // Atualiza para 'concluido' tudo que:
-    // 1. Ainda está 'agendado'
-    // 2. O horário já passou (menor que agora)
-    $afetados = Appointment::where('status', 'agendado')
-        ->where('scheduled_at', '<', Carbon::now())
-        ->update(['status' => 'concluído']);
-        
-    // Opcional: Logar para você saber que rodou
+    
+    $agora = Carbon::now();
+
+    // VAMOS USAR O QUERY BUILDER (ignora Models e Mutators)
+    $afetados = DB::table('appointments')
+        ->where('status', 'agendado')
+        ->where('scheduled_at', '<', $agora)
+        ->update([
+            'status' => 'concluído', // <--- Verifique o acento
+            'updated_at' => $agora // update manual não atualiza o timestamp
+        ]);
+
     if ($afetados > 0) {
-        logger()->info("$afetados agendamentos foram marcados como concluídos automaticamente.");
+        Log::info("ROBÔ (DB): $afetados agendamentos foram atualizados para CONCLUÍDO via DB.");
     }
-})->hourly(); // Roda de hora em hora (pode mudar para everyMinute() para testar)
+
+})->everyMinute();
