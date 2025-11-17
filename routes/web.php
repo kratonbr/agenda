@@ -4,14 +4,19 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AppointmentController;
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\BusinessHourController;
 Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard');
+
+// Rota para ver e salvar horários
+Route::get('/horarios', [BusinessHourController::class, 'index'])->name('business_hours.index');
+Route::post('/horarios', [BusinessHourController::class, 'update'])->name('business_hours.update');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

@@ -27,23 +27,31 @@
                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
                         </div>
 
-                        <div class="mb-4">
-                            <label for="scheduled_at" class="block text-sm font-medium text-gray-700">Data e Hora</label>
-                            <input type="datetime-local" name="scheduled_at" id="scheduled_at" required
-                                value="{{ old('scheduled_at', $appointment->scheduled_at->format('Y-m-d\TH:i')) }}"
-                                min="{{ now()->format('Y-m-d\TH:i') }}" 
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            <div class="mb-4">
+                                <label for="scheduled_at" class="block text-sm font-medium text-gray-700">Data e Hora</label>
                                 
+                                <input type="datetime-local" 
+                                    name="scheduled_at" 
+                                    id="scheduled_at" 
+                                    required
+                                    value="{{ old('scheduled_at', $appointment->scheduled_at->format('Y-m-d\TH:i')) }}"
+                                    min="{{ now()->format('Y-m-d\TH:i') }}" 
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+
+                                <x-input-error :messages="$errors->get('scheduled_at')" class="mt-2" />
                             </div>
 
-                        <div class="mb-4">
-                            <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
-                            <select name="status" id="status" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                                <option value="agendado" {{ $appointment->status == 'agendado' ? 'selected' : '' }}>Agendado</option>
-                                <option value="concluido" {{ $appointment->status == 'concluido' ? 'selected' : '' }}>Concluído</option>
-                                <option value="cancelado" {{ $appointment->status == 'cancelado' ? 'selected' : '' }}>Cancelado</option>
-                            </select>
-                        </div>
+                                <div class="mb-4">
+                                    <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
+                                    
+                                    <select name="status" id="status" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                        <option value="agendado" {{ old('status', $appointment->status) == 'agendado' ? 'selected' : '' }}>Agendado</option>
+                                        <option value="concluido" {{ old('status', $appointment->status) == 'concluido' ? 'selected' : '' }}>Concluído</option>
+                                        <option value="cancelado" {{ old('status', $appointment->status) == 'cancelado' ? 'selected' : '' }}>Cancelado</option>
+                                    </select>
+
+                                    <x-input-error :messages="$errors->get('status')" class="mt-2" />
+                                </div>
 
                         <div class="mb-4">
                             <label for="notes" class="block text-sm font-medium text-gray-700">Observações</label>

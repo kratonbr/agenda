@@ -37,11 +37,24 @@
                                         <td class="px-6 py-4">
                                             {{ \Carbon\Carbon::parse($appointment->scheduled_at)->format('d/m/Y H:i') }}
                                         </td>
-                                        <td class="px-6 py-4">
-                                            <span class="px-2 py-1 font-semibold leading-tight text-green-700 bg-green-100 rounded-full">
-                                                {{ $appointment->status }}
-                                            </span>
-                                        </td>
+                                       
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                @if($appointment->status == 'agendado')
+                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                                        Agendado
+                                                    </span>
+                                                @elseif($appointment->status == 'concluido')
+                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                                        Concluído
+                                                    </span>
+                                                @else
+                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                                        Cancelado
+                                                    </span>
+                                                @endif
+                                            </td>
+
+
                                         <td class="px-6 py-4">
                                             <a href="{{ route('appointments.edit', $appointment) }}" class="font-medium text-blue-600 hover:underline">
                                                 Editar
