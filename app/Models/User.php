@@ -21,6 +21,10 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'business_id',
+        'is_admin',
+        'role',
+        'is_super_admin',
     ];
 
     /**
@@ -43,6 +47,23 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_admin' => 'boolean',
+            'is_super_admin' => 'boolean',
         ];
+    }
+
+    public function business()
+    {
+        return $this->belongsTo(Business::class);
+    }
+
+    public function appointments()
+    {
+        return $this->hasMany(Appointment::class, 'scheduled_by');
+    }
+
+    public function professionalAppointments()
+    {
+        return $this->hasMany(Appointment::class, 'professional_id');
     }
 }

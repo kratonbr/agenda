@@ -2,27 +2,46 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Appointment extends Model
 {
-    // Isso libera esses campos para serem salvos pelo formulário
+    use HasFactory;
+
     protected $fillable = [
-        'user_id',
-        'customer_name',
-        'phone',
+        'business_id',
+        'customer_id',
+        'scheduled_by',
+        'professional_id',
         'scheduled_at',
+        'duration',
         'status',
+        'payment_status',
         'notes',
     ];
-    // Isso avisa ao Laravel: "Trate o scheduled_at como data, não como texto"
+
     protected $casts = [
         'scheduled_at' => 'datetime',
     ];
-    // --------------------------
 
-    public function user()
+    public function business()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(Business::class);
+    }
+
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class);
+    }
+
+    public function scheduledBy()
+    {
+        return $this->belongsTo(User::class, 'scheduled_by');
+    }
+
+    public function professional()
+    {
+        return $this->belongsTo(User::class, 'professional_id');
     }
 }

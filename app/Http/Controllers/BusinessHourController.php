@@ -10,10 +10,8 @@ class BusinessHourController extends Controller
 {
     public function index()
     {
-        // 1. Pegamos os horários que já existem no banco
-        $horarios = BusinessHour::where('user_id', Auth::id())->get();
+        $horarios = BusinessHour::where('business_id', Auth::user()->business_id)->get();
 
-        // 2. Definimos os dias da semana (0 = Domingo, 6 = Sábado)
         $diasDaSemana = [
             0 => 'Domingo',
             1 => 'Segunda-feira',
@@ -37,14 +35,13 @@ class BusinessHourController extends Controller
             'hours.*.is_open' => 'nullable|boolean',
         ]);
 
-        $userId = Auth::id();
+        $businessId = Auth::user()->business_id;
 
-        // Loop para salvar cada dia
         foreach ($data['hours'] as $day => $hourData) {
             BusinessHour::updateOrCreate(
                 [
-                    'user_id' => $userId,
-                    'day' => $day // A chave única é o Usuário + O Dia
+                    'business_id' => $businessId,
+                    'day' => $day
                 ],
                 [
                     'open_at' => $hourData['open_at'] ?? null,

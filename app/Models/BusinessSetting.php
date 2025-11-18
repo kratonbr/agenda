@@ -5,22 +5,16 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class BusinessHour extends Model
+class BusinessSetting extends Model
 {
     use HasFactory;
 
     protected $fillable = [
         'business_id',
-        'day',
-        'open_at',
-        'close_at',
-        'is_open',
-    ];
-
-    protected $casts = [
-        'open_at' => 'datetime', 
-        'close_at' => 'datetime',
-        'is_open' => 'boolean',
+        'requires_cpf',
+        'enable_medical_fields',
+        'show_payment_options',
+        'default_appointment_duration',
     ];
 
     public function business()
